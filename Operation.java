@@ -7,15 +7,15 @@ public abstract class Operation implements Expression {
         this.droite = droite;
     }
 
-    abstract double calcule(double g, double d) throws ExpressionException;
+    abstract double calcule(double g, double d) ;
 
     abstract public char getSymb();
 
 
     @Override
-    public double evalue(double... variables) throws ExpressionException {
-        return calcule(gauche.evalue(variables), droite.evalue(variables));
-    }
+    public double evalue(double... variables)  {
+        return calcule(gauche.evalue(variables), droite.evalue(variables));  //redescent l'arbre de calcule jusqu'a trouvé une constante ou une variable
+    }                                                                        //puis remonte l'arbre en faisant les calcules
 
 
 
@@ -23,46 +23,38 @@ public abstract class Operation implements Expression {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        StringBuilder s1 = new StringBuilder();
-        StringBuilder s2 = new StringBuilder();
 
-
-
-        if(((this instanceof Multiplication || this instanceof Division) &&
-                (gauche instanceof Addition || gauche instanceof Soustraction)) ||
-                (this instanceof Multiplication && gauche instanceof Division)){
-            s1.append("(");
-            s1.append(gauche);
-            s1.append(")");
-
+        //on cherche les expressions de gauche necessitant des parentheses
+        if((this instanceof Multiplication || this instanceof Division) &&
+                (gauche instanceof Addition || gauche instanceof Soustraction)) {
+            s.append("(");
+            s.append(gauche);
+            s.append(")");
         }
-
+        //sinon on n'en met pas
         else{
-            s1.append(gauche);
+            s.append(gauche);
         }
 
+        s.append(" ");
+        s.append(this.getSymb());  //on ajoute le symbole correspondant a l'operation
+        s.append(" ");
+
+        //on cherche les expressions de droite necessitant des parentheses
         if(this instanceof Division && droite instanceof Operation||
-                this instanceof Multiplication && (droite instanceof Addition || droite instanceof Soustraction)){
-            s2.append("(");
-            s2.append(droite);
-            s2.append(")");
+                this instanceof Multiplication && (droite instanceof Addition || droite instanceof Soustraction)
+                || this instanceof Soustraction && droite instanceof Addition){
+            s.append("(");
+            s.append(droite);
+            s.append(")");
         }
-
+        //sinon on n'en met pas
         else{
-            s2.append(droite);
+            s.append(droite);
         }
-
-
-        s.append(s1);
-        s.append(" ");
-        s.append(this.getSymb());
-        s.append(" ");
-        s.append(s2);
 
         return s.toString();
 
-
     }
-
 
 }
